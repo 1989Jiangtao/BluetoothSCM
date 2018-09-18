@@ -30,5 +30,5 @@
 <div align="center">
   <img src="https://github.com/1989Jiangtao/BluetoothSCM/blob/master/screenshots/%E8%93%9D%E7%89%99%E5%8D%95%E7%89%87%E6%9C%BA%E6%8E%A7%E5%88%B6LED.gif" width="630" height="375"></img>
 </div>
-<div align="center"> <h3>控制单片机演示截图</h3></div>
+<div align="center"> <h3>控制单片机LED开关演示截图</h3></div>
 <br/>
