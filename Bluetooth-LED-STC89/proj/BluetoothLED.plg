@@ -1,0 +1,22 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Project:</h2>
+D:\d_workspace\Bluetooth-LED-STC89\proj\BluetoothLED.uvproj
+Project File Date:  08/28/2018
+
+<h2>Output:</h2>
+Build target 'BluetoothLED'
+assembling STARTUP.A51...
+linking...
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  ?C_START
+    MODULE:  ..\obj\STARTUP.obj (?C_STARTUP)
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  ?C_START
+    MODULE:  ..\obj\STARTUP.obj (?C_STARTUP)
+    ADDRESS: 000DH
+Program Size: data=9.0 xdata=0 code=15
+creating hex file from "..\obj\BluetoothLED"...
+"..\obj\BluetoothLED" - 0 Error(s), 2 Warning(s).

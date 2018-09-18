@@ -1,0 +1,5 @@
+"..\obj\main.obj",
+"..\obj\OLED.obj",
+"..\obj\DS18b20.obj" 
+TO "..\obj\BluetoothLED" RTX51 
+PRINT(".\BluetoothLED.m51") RAMSIZE(256) 

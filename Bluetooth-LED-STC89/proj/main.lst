@@ -1,0 +1,322 @@
+C51 COMPILER V9.52.0.0   MAIN                                                              09/18/2018 10:41:22 PAGE 1   
+
+
+C51 COMPILER V9.52.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN ..\obj\main.obj
+COMPILER INVOKED BY: D:\Keil\C51\BIN\C51.EXE ..\src\main.c ROM(COMPACT) RTX51 BROWSE INCDIR(..\src) DEBUG OBJECTEXTEND P
+                    -RINT(.\main.lst) TABS(2) OBJECT(..\obj\main.obj)
+
+line level    source
+
+   1          /****************************************
+   2          **       蓝牙串口接收数据
+   3          ** 
+   4          **   作者：江涛
+   5          **   时间：2018/08/31
+   6          **   描述：串口发送数据兼用OLED显示
+   7          ****************************************/
+   8          #include "STC89C5xRC_RDP.h"
+   9          #include "string.h"     // 要使用字符串对比函数，需要引入该头文件
+  10          #include "OLED.h"       // OLED显示屏头文件
+  11          #include "DS18b20.h"
+  12          
+  13          // 定义系统时钟和串口波特率
+  14          #define FOSC 11059200L      // 系统时钟
+  15          #define BAUD 9600           // 串口波特率
+  16          
+  17          /******变量声明*********/ 
+  18          char RECEIVED_CMD[10] ;         // 暂定为10字节的指令
+  19          char RECEIVED_INDEX ;           // 数组指示索引，当接收到一个数据之后，索引会跟随增
+             -加
+  20          unsigned char flag = 0 ;        // 数据接收的标志位
+  21          unsigned char power_flag = 0 ;  // 电源开关的标志位
+  22          
+  23          /******命令常量*******/
+  24          code const char* LED_ON = "ON\r\n" ;          // 电源开指令
+  25          code const char* LED_OFF = "OFF\r\n" ;        // 电源关指令
+  26          code const char* LED_01_ON = "L1ON\r\n" ;     // 灯组01开指令
+  27          code const char* LED_01_OFF = "L1OFF\r\n" ;   // 灯组01关指令
+  28          code const char* LED_02_ON = "L2ON\r\n" ;     // 灯组02开指令
+  29          code const char* LED_02_OFF = "L2OFF\r\n" ;   // 灯组02关指令
+  30          code const char* FAN_ON = "FANON\r\n" ;       // 风扇开指令，使用RGB灯循环来模拟风扇工作
+  31          code const char* FAN_OFF = "FANOFF\r\n" ;     // 风扇关指令
+  32          code const char* FAILD = "power_off\r\n" ;    // 返回失败原因，电源关闭了
+  33          
+  34          extern unsigned int tvalue;     //温度值
+  35          extern unsigned char tflag;     //温度正负标志
+  36          unsigned char disdata[7];       // 温度数据，使用8字节数组来存储
+  37          
+  38          char color_table[8][3] = { // 颜色表
+  39            {0,0,0},{0,0,1},{0,1,0},{0,1,1},{1,0,0},{1,0,1},{1,1,0},{1,1,1}
+  40          };
+  41          
+  42          /*******函数声明*********/
+  43          void Init_UART(); // 初始化串口
+  44          void UART_SendData(char dat); // 串口发送数据
+  45          void UART_SendStr(char* str); // 串口发送字符串
+  46          void RGB_Display(int index);  // RGB灯显示
+  47          
+  48          //void split(char str[],char delims[]); // 字符串截取函数
+  49          
+  50          void ds1820disp();  // 温度显示
+  51          
+  52          void test_Fan(char flag);   // 模拟测试风扇运行
+  53          void Delay1ms();            //@11.0592MHz
+C51 COMPILER V9.52.0.0   MAIN                                                              09/18/2018 10:41:22 PAGE 2   
+
+  54          
+  55          /***********端口定义*************/
+  56          sbit LED_R = P0^0 ;
+  57          sbit LED_G = P0^1 ;
+  58          sbit LED_B = P0^2 ;
+  59          
+  60          /*******程序入口*********/
+  61          void main() 
+  62          {
+  63   1      
+  64   1        unsigned int temperature , old ; // 保存温度数值
+  65   1        
+  66   1        Init_UART();  // 串口初始化
+  67   1        
+  68   1        LCD_Init();  // OLED 初始化
+  69   1        LCD_CLS();   // 清屏
+  70   1        
+  71   1        LCD_P8x16Str(0 , 0 , "TEMP:");  // 温度开始位置
+  72   1        
+  73   1        temperature = ReadTemperature(); 
+  74   1        old = temperature ; 
+  75   1        ds1820disp(); // 显示温度
+  76   1        UART_SendStr(disdata); // 向串口发送数据
+  77   1        LCD_P8x16Str(5*8 , 0 , disdata); // 显示温度
+  78   1        
+  79   1        while(1)
+  80   1        {
+  81   2          
+  82   2          temperature=ReadTemperature();  // 读取一次新的温度
+  83   2          if (temperature != old )    
+  84   2          {  
+  85   3            old = temperature;
+  86   3            ds1820disp(); // 显示温度
+  87   3            UART_SendStr(disdata); // 向串口发送数据
+  88   3            LCD_P8x16Str(5*8 , 0 , disdata); // 显示温度
+  89   3      
+  90   3          }
+  91   2          
+  92   2          if(flag) // 接收数据完毕一次，就会进入中断一次
+  93   2          {
+  94   3            flag = 0 ; // 将标志位还原，使得串口又可以重新接收数据
+  95   3                
+  96   3            if(strcmp(RECEIVED_CMD , LED_ON) == 0)
+  97   3            {
+  98   4              P2 = 0xFF ; // P2口全亮
+  99   4              power_flag = 1 ; // 标志电源打开
+ 100   4            }
+ 101   3            else if(strcmp(RECEIVED_CMD , LED_OFF) == 0)
+ 102   3            {
+ 103   4              P2 = 0x00 ; // P2口全灭
+ 104   4              power_flag = 0 ;// 标志电源关闭
+ 105   4            }
+ 106   3            else if(strcmp(RECEIVED_CMD , LED_01_ON) == 0)
+ 107   3            {
+ 108   4              if(power_flag)    // 如果电源开关是关闭的，就不执行以下操作
+ 109   4                P2 = 0x55 ;     // ‭01010101‬ 为1位置的灯是亮着的
+ 110   4              else
+ 111   4                UART_SendStr(FAILD); // 向串口发送失败原因
+ 112   4            }
+ 113   3            else if(strcmp(RECEIVED_CMD , LED_01_OFF) == 0)
+ 114   3            {
+ 115   4              P2 = P2^0x55 ; // P2口01010101相应位置的灯要全灭，所以使用异或操作
+C51 COMPILER V9.52.0.0   MAIN                                                              09/18/2018 10:41:22 PAGE 3   
+
+ 116   4            }
+ 117   3            else if(strcmp(RECEIVED_CMD , LED_02_ON) == 0)
+ 118   3            {
+ 119   4              if(power_flag)    // 如果电源开关是关闭的，就不执行以下操作
+ 120   4                P2 = 0xAA ;     // ‭10101010‬ 为1位置的灯是亮着的
+ 121   4              else
+ 122   4                UART_SendStr(FAILD); // 向串口发送失败原因
+ 123   4            }
+ 124   3            else if(strcmp(RECEIVED_CMD , LED_02_OFF) == 0)
+ 125   3            {
+ 126   4              P2 = P2^0xAA ; // P2口10101010相应位置的灯要全灭，所以使用异或操作
+ 127   4            }
+ 128   3            else if(strcmp(RECEIVED_CMD , FAN_ON) == 0)
+ 129   3            {
+ 130   4              test_Fan(1);
+ 131   4            }
+ 132   3            else if(strcmp(RECEIVED_CMD , FAN_OFF) == 0)
+ 133   3            {
+ 134   4              test_Fan(0);
+ 135   4            }     
+ 136   3      
+ 137   3            
+ 138   3            // 用完之后要记得数组清零处理
+ 139   3            RECEIVED_INDEX = 0 ;        // 数组指引复位
+ 140   3            memset(RECEIVED_CMD,0,10);  // 清0数组
+ 141   3          }
+ 142   2        }
+ 143   1      }
+ 144          
+ 145          /******************
+ 146          ** 初始化串口
+ 147          *******************/
+ 148          void Init_UART()
+ 149          {
+ 150   1          SCON = 0x50;                     //设置8位数据位
+ 151   1          TMOD = 0x20;                     //8位自动重载
+ 152   1          TH1 = TL1 = -(FOSC/12/32/BAUD);  //设置重载值
+ 153   1          TR1 = 1;                         //使能时钟
+ 154   1          ES = 1;                          //使能串口中断
+ 155   1          EA = 1;                          //开中断开关
+ 156   1      }
+ 157          
+ 158          /********************
+ 159          ** 串口中断处理
+ 160          *********************/
+ 161          void UART_Isr() interrupt 4 using 1
+ 162          {
+ 163   1        // 串口接收中断处理
+ 164   1        if(RI) 
+ 165   1        {
+ 166   2          RI = 0 ;                              // 清除中断标志位
+ 167   2          RECEIVED_CMD[RECEIVED_INDEX] = SBUF ; // 保存串口接收的数据
+ 168   2          if(RECEIVED_CMD[RECEIVED_INDEX] == 0x0A ){ // 遇到了结束符号
+ 169   3             flag = 1 ;           // 接收结束，到循环中处理接收的数据
+ 170   3          }else {
+ 171   3             RECEIVED_INDEX ++ ;   // 继续接收数据
+ 172   3          }
+ 173   2        }
+ 174   1      
+ 175   1        // 串口发送中断处理
+ 176   1        if(TI)
+ 177   1        {
+C51 COMPILER V9.52.0.0   MAIN                                                              09/18/2018 10:41:22 PAGE 4   
+
+ 178   2          TI = 0 ;  // 清发送中断标志位
+ 179   2        }
+ 180   1          
+ 181   1      }
+ 182          
+ 183          /**************************
+ 184          ** 通过串口发送一位数据
+ 185          ***************************/
+ 186          void UART_SendData(char dat)
+ 187          {
+ 188   1        ES = 0 ;      // 串口工作的时候禁止中断
+ 189   1        SBUF = dat ;  // 待发送的数据放到SBUF中
+ 190   1        while(!TI) ;  // 等待发送完毕
+ 191   1        TI = 0 ;      // 清TI中断
+ 192   1        ES = 1 ;      // 打开中断
+ 193   1      }
+ 194          
+ 195          /*****************************
+ 196          **  通过串口发送字符串
+ 197          ******************************/
+ 198          void UART_SendStr(char *str)
+ 199          {
+ 200   1          do
+ 201   1          {
+ 202   2            UART_SendData(*str);
+ 203   2          }while(*str ++  != '\0' ); // 一直到字符串结束
+ 204   1      }
+ 205          
+ 206          /****************************
+ 207          **  显示RGB灯的颜色
+ 208          *****************************/
+ 209          void RGB_Display(int index)
+ 210          {
+ 211   1        LED_R = color_table[index%8][0];
+ 212   1        LED_G = color_table[index%8][1];
+ 213   1        LED_B = color_table[index%8][2];
+ 214   1      }
+ 215          
+ 216          void Delay1ms()   //@11.0592MHz
+ 217          {
+ 218   1        unsigned char i, j;
+ 219   1      
+ 220   1        _nop_();
+ 221   1        i = 2;
+ 222   1        j = 199;
+ 223   1        do
+ 224   1        {
+ 225   2          while (--j);
+ 226   2        } while (--i);
+ 227   1      }
+ 228          
+ 229          /****************
+ 230          ** 模拟风扇运行
+ 231          ****************/
+ 232          void test_Fan(char flag)
+ 233          {
+ 234   1        unsigned int t , count = 500 ;
+ 235   1      
+ 236   1        if(!flag) return ; // 如果传入的是0，表示停止，不往下继续进行
+ 237   1        
+ 238   1        for(t=0 ; t<8 ; t++)
+ 239   1        {
+C51 COMPILER V9.52.0.0   MAIN                                                              09/18/2018 10:41:22 PAGE 5   
+
+ 240   2          RGB_Display(t);   // 风扇
+ 241   2          for( ; count > 0 ; count --)
+ 242   2            Delay1ms();
+ 243   2        } 
+ 244   1      }
+ 245          
+ 246          ///***********************************
+ 247          //** 字符串截取函数
+ 248          //***********************************/
+ 249          //void split(char str[],char delims[])
+ 250          //{
+ 251          //  char *result = NULL; 
+ 252          //  result = strtok( str, delims );  
+ 253          //  while( result != NULL ) {  
+ 254          //     result = strtok( NULL, delims );  
+ 255          //  }
+ 256          //} 
+ 257          
+ 258          /***************************
+ 259          ** 温度值显示
+ 260          ***************************/
+ 261          void ds1820disp()
+ 262          {   
+ 263   1          unsigned char flagdat;
+ 264   1        
+ 265   1          if(tflag==0)
+ 266   1      //      flagdat=0x20;//正温度不显示符号
+ 267   1            flagdat=0x2b;//正温度显示符号
+ 268   1          else
+ 269   1            flagdat=0x2d;//负温度显示负号:-
+ 270   1          
+ 271   1      //    disdata[0] = flagdat; //符号位
+ 272   1        
+ 273   1          disdata[1]=tvalue/1000+0x30;//百位数
+ 274   1          disdata[2]=tvalue%1000/100+0x30;//十位数
+ 275   1          disdata[3]=tvalue%100/10+0x30;//个位数
+ 276   1          disdata[4]= 0x2E ;//小数点
+ 277   1          disdata[5]=tvalue%10/1+0x30;//小数位
+ 278   1      
+ 279   1          if(disdata[1]==0x30) // 如果百位为0
+ 280   1          {
+ 281   2            disdata[0]= 0x20; // 第一位不显示
+ 282   2            disdata[1]= flagdat; // 百位显示符号
+ 283   2            if(disdata[2]==0x30) //如果百位为0，十位为0
+ 284   2            {
+ 285   3              disdata[1]=0x20; // 百位不显示符号
+ 286   3              disdata[2]=flagdat; // 10位显示符号
+ 287   3            }
+ 288   2          }
+ 289   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    762    ----
+   CONSTANT SIZE    =    103    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     44       9
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

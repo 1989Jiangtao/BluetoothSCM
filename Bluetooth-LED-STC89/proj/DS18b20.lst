@@ -1,0 +1,104 @@
+C51 COMPILER V9.52.0.0   DS18B20                                                           09/18/2018 10:41:22 PAGE 1   
+
+
+C51 COMPILER V9.52.0.0, COMPILATION OF MODULE DS18B20
+OBJECT MODULE PLACED IN ..\obj\DS18b20.obj
+COMPILER INVOKED BY: D:\Keil\C51\BIN\C51.EXE ..\src\DS18b20.c ROM(COMPACT) RTX51 BROWSE INCDIR(..\src) DEBUG OBJECTEXTEN
+                    -D PRINT(.\DS18b20.lst) TABS(2) OBJECT(..\obj\DS18b20.obj)
+
+line level    source
+
+   1          #include "DS18b20.h"
+   2          
+   3          unsigned int tvalue;//温度值
+   4          unsigned char tflag;//温度正负标志
+   5          
+   6          void delay(unsigned int i)
+   7          {
+   8   1       while(i--);
+   9   1      }
+  10          
+  11          void Init_DS18B20(void)
+  12          {
+  13   1        unsigned char x=0;
+  14   1        DQ = 1;    
+  15   1        delay(8);  
+  16   1        DQ = 0;    
+  17   1        delay(80); 
+  18   1        DQ = 1;    
+  19   1        delay(14);
+  20   1        x=DQ;      
+  21   1        delay(20);
+  22   1      }
+  23          
+  24          unsigned char ReadOneChar(void)
+  25          {
+  26   1        unsigned char i=0;
+  27   1        unsigned char dat = 0;
+  28   1        for (i=8;i>0;i--)
+  29   1        {
+  30   2          DQ = 0; 
+  31   2          dat>>=1;
+  32   2          DQ = 1; 
+  33   2          if(DQ)
+  34   2           dat|=0x80;
+  35   2          delay(4);
+  36   2        }
+  37   1        return(dat);
+  38   1      }
+  39          
+  40          void WriteOneChar(unsigned char dat)
+  41          {
+  42   1       unsigned char i=0;
+  43   1       for (i=8; i>0; i--)
+  44   1       {
+  45   2        DQ = 0;
+  46   2        DQ = dat&0x01;
+  47   2        delay(5);
+  48   2        DQ = 1;
+  49   2        dat>>=1;
+  50   2       }
+  51   1      }
+  52          
+  53          int ReadTemperature(void)
+  54          {
+C51 COMPILER V9.52.0.0   DS18B20                                                           09/18/2018 10:41:22 PAGE 2   
+
+  55   1        unsigned char a=0;
+  56   1        unsigned char b=0;
+  57   1      
+  58   1        Init_DS18B20();
+  59   1        WriteOneChar(0xCC); 
+  60   1        WriteOneChar(0x44); 
+  61   1        Init_DS18B20();
+  62   1        WriteOneChar(0xCC);
+  63   1        WriteOneChar(0xBE);
+  64   1        a=ReadOneChar();
+  65   1        b=ReadOneChar();
+  66   1        tvalue = b;
+  67   1        tvalue <<= 8;
+  68   1        tvalue = tvalue|a;
+  69   1        if(tvalue<0x0fff)
+  70   1          tflag=0;
+  71   1        else
+  72   1        {
+  73   2          tvalue=~tvalue+1;
+  74   2          tflag=1;
+  75   2        }
+  76   1        tvalue = tvalue*(0.625);//温度值扩大10倍，精确到1位小数
+  77   1        return(tvalue);
+  78   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    223    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      3    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
