@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303f9f</color>
+    <color name="colorAccent">#ff4081</color>
+    <color name="colorGreen">#6dda9c</color>
+    <color name="colorWhite">#ffffff</color>
+    <color name="colorRed">#e62424</color>
+    <color name="colorOff">#746464</color>
+    <color name="colorOn">#df2525</color>
+
+    <!--DashBroadView-->
+    <color name="arc1">#099bfb</color>
+    <color name="arc2">#37d547</color>
+    <color name="arc3">#f86669</color>
+    <color name="arc_text">#999999</color>
+    <color name="arc_line">#cfcfcf</color>
+    <color name="selectColor">#f96767</color>
+    <color name="arc_bg">#f0f0f0</color>
+    <color name="arc_inteval">#E8e8e8</color>
+    <color name="arc_temp">#333333</color>
+
+    <color name="arc21">#fc843b</color>
+    <color name="arc22">#37d547</color>
+    <color name="arc23">#079df9</color>
+
+</resources>

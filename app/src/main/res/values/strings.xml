@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">BluetoothSCM</string>
+    <string name="action_settings">扫描设备</string>
+    <string name="result_title">结果列表</string>
+    <string name="btn_exit">退    出</string>
+    <string name="scan_hint">请点击右上角的扫描按钮</string>
+    <string name="lamp_01">灯组01</string>
+    <string name="lamp_02">灯组02</string>
+    <string name="power_sw">灯开关</string>
+    <string name="fan_sw">风扇</string>
+
+    <string-array name="mult_temp_dash">
+        <item>寒冷</item>
+        <item>舒适</item>
+        <item>炎热</item>
+    </string-array>
+
+</resources>

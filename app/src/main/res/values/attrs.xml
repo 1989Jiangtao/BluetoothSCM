@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="DashboardView">
+        <attr name="totalAngle" format="integer" />
+        <attr name="centerCircleRadius" format="dimension" />
+        <attr name="arcBorderDimen" format="dimension" />
+        <attr name="numberTextSize" format="dimension" />
+        <attr name="graduatedTextSize" format="dimension" />
+        <attr name="angleTextSize" format="dimension" />
+        <attr name="pointLinePercent" format="float" />
+    </declare-styleable>
+
+</resources>

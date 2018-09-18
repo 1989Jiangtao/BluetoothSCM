@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/main_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:textSize="18sp"
+        android:text="@string/scan_hint"
+        android:textColor="@color/colorAccent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/top_div"
+        android:layout_width="wrap_content"
+        android:layout_height="1dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/arc1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/main_title" />
+
+    <com.cjt.bluetoothscm.DashboardView
+        android:id="@+id/temp_view"
+        android:layout_width="280dp"
+        android:layout_height="280dp"
+        android:layout_marginTop="15dp"
+        app:angleTextSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/top_div" />
+
+    <View
+        android:id="@+id/top_div2"
+        android:layout_width="wrap_content"
+        android:layout_height="1dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="20dp"
+        android:background="@color/arc1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/temp_view" />
+
+    <com.github.zagum.switchicon.SwitchIconView
+        android:id="@+id/sw_lamp_01"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/top_div2"
+        app:si_animation_duration="200"
+        app:si_disabled_alpha=".5"
+        app:si_disabled_color="@color/colorOff"
+        app:si_enabled="false"
+        app:si_no_dash="true"
+        app:si_tint_color="@color/colorOn"
+        app:srcCompat="@drawable/ic_lamp" />
+
+    <com.github.zagum.switchicon.SwitchIconView
+        android:id="@+id/sw_lamp_02"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintStart_toEndOf="@+id/sw_lamp_01"
+        app:layout_constraintTop_toBottomOf="@+id/top_div2"
+        app:si_animation_duration="200"
+        app:si_disabled_alpha=".5"
+        app:si_disabled_color="@color/colorOff"
+        app:si_enabled="false"
+        app:si_no_dash="true"
+        app:si_tint_color="@color/colorOn"
+        app:srcCompat="@drawable/ic_lamp" />
+
+    <com.github.zagum.switchicon.SwitchIconView
+        android:id="@+id/sw_power"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintStart_toEndOf="@+id/sw_lamp_02"
+        app:layout_constraintTop_toBottomOf="@+id/top_div2"
+        app:si_animation_duration="200"
+        app:si_disabled_alpha=".5"
+        app:si_disabled_color="@color/colorOff"
+        app:si_enabled="false"
+        app:si_no_dash="true"
+        app:si_tint_color="@color/colorOn"
+        app:srcCompat="@drawable/ic_switch" />
+
+    <com.github.zagum.switchicon.SwitchIconView
+        android:id="@+id/sw_fan"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintStart_toEndOf="@+id/sw_power"
+        app:layout_constraintTop_toBottomOf="@+id/top_div2"
+        app:si_animation_duration="200"
+        app:si_disabled_alpha=".5"
+        app:si_disabled_color="@color/colorOff"
+        app:si_enabled="false"
+        app:si_no_dash="true"
+        app:si_tint_color="@color/colorOn"
+        app:srcCompat="@drawable/ic_fan" />
+
+    <TextView
+        android:id="@+id/lamp_01_name"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="@string/lamp_01"
+        app:layout_constraintEnd_toEndOf="@+id/sw_lamp_01"
+        app:layout_constraintStart_toStartOf="@+id/sw_lamp_01"
+        app:layout_constraintTop_toBottomOf="@+id/sw_lamp_01"
+        tools:ignore="HardcodedText" />
+
+    <TextView
+        android:id="@+id/lamp_02_name"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="@string/lamp_02"
+        app:layout_constraintEnd_toEndOf="@+id/sw_lamp_02"
+        app:layout_constraintStart_toStartOf="@+id/sw_lamp_02"
+        app:layout_constraintTop_toBottomOf="@+id/sw_lamp_02" />
+
+    <TextView
+        android:id="@+id/power_name"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="@string/power_sw"
+        app:layout_constraintEnd_toEndOf="@+id/sw_power"
+        app:layout_constraintStart_toStartOf="@+id/sw_power"
+        app:layout_constraintTop_toBottomOf="@+id/sw_power" />
+
+    <TextView
+        android:id="@+id/fan_name"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="@string/fan_sw"
+        app:layout_constraintEnd_toEndOf="@+id/sw_fan"
+        app:layout_constraintStart_toStartOf="@+id/sw_fan"
+        app:layout_constraintTop_toBottomOf="@+id/sw_fan" />
+
+</android.support.constraint.ConstraintLayout>
