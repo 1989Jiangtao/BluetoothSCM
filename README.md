@@ -1,7 +1,11 @@
 # BluetoothSCM
 安卓手机通过蓝牙与单片机通信-发送指令/接收数据  
 ------------------------------------------
-### 项目包含安卓端源码，STC89单片机源码，STM8S单片机源码                                             
+### 项目包含安卓端源码，STC89单片机源码，STM8S单片机源码   
+ #### * APP
+ #### * Bluetooth-LED-STM8  
+ #### * Bluetooth-LED-STC89
+ 
 ### 博客专栏
   [专栏：安卓与蓝牙硬件 - CSDN博客](https://blog.csdn.net/column/details/25558.html)
 
