@@ -9,7 +9,7 @@
 ### 博客专栏
   如果大家有什么疑问和不理解的地方可以去专栏博客上留言，我看到了会跟大家一起讨论学习。
   
-  [专栏：安卓与蓝牙硬件 - CSDN博客](https://blog.csdn.net/column/details/25558.html)
+  [专栏：安卓与蓝牙硬件 - CSDN博客](https://blog.csdn.net/u010898329/category_9277454.html)
 
 #### 运行截图  
 <br/>
